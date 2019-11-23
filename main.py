@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter.ttk import *
 
 REFLECTEUR = ["+25", "+23", "+21", "+19", "+17", "+15", "+13", "+11", "+9", "+7", "+5", "+3", "+1", "-1", "-3",
               "-5", "-7", "-9", "-11", "-13", "-15", "-17", "-19", "-21", "-23", "-25"]
@@ -23,7 +24,7 @@ ALPHABET =["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
 #Initialisation de la fenêtre
 window = Tk()
 window.title("Enigma")
-window.geometry("1000x600")
+window.geometry("900x600")
 
 #Espacement entre les rotors
 Label(window, text=" ", font=("Helvetica", 12)).grid(row=0)
@@ -49,6 +50,23 @@ grid_rotor1_bas = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, 
 grid_rotor1_text = Label(window, text="Rotor 1",font=("Helvetica", 12)).grid(row=9, column=29, rowspan=2)
 
 grid_alphabet = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3).grid(row=12, column=i) for i, v in enumerate(ALPHABET)]
+
+Label(window, text=" ", font=("Helvetica", 12)).grid(row=13)
+
+Separator(window, orient=HORIZONTAL).grid(row=14, columnspan=34, sticky='ew')
+Separator(window, orient=HORIZONTAL).grid(row=15, columnspan=34, sticky='ew')
+
+Label(window, text=" ", font=("Helvetica", 16)).grid(row=16)
+Label(window, text="Zone pour saisir la clé sous forme de trois triplets. Exemple : (R3, G, +7)(R1, D, -6)(R2, D, +5)",
+      font=("Helvetica", 10)).grid(row=17, columnspan=30)
+
+Label(window, text="Clé", font=("Helvetica", 12)).grid(row=18, column=6)
+Entry(window, font=("Helvetica", 12), width="30").grid(row=18, column=7, columnspan=12)
+
+Label(window, text=" ", font=("Helvetica", 12)).grid(row=19)
+
+Separator(window, orient=HORIZONTAL).grid(row=20, columnspan=34, sticky='ew')
+Separator(window, orient=HORIZONTAL).grid(row=21, columnspan=34, sticky='ew')
 
 def droite():
     for x in tabdelabs:
