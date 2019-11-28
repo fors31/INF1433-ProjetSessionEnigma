@@ -22,7 +22,18 @@ ROTOR1_BAS = ["+10", "+21", "+5", "-17", "+21", "-4", "+12", "+16", "+6", "-3", 
 ALPHABET =["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 
 def effacer(event):
-    event.widget.delete(1.0, END)
+    fenetre = str(event.widget)
+    if str(event.widget.get(1.0, END)) == "Zone de texte pour taper le message à encrypter ou pour afficher le résultat de décryption\n" \
+        or str(event.widget.get(1.0, END)) == "Zone de texte pour taper le message à décrypter ou pour afficher le résultat d'encryption\n":
+        event.widget.delete(1.0, END)
+    def test_text(event):
+        if fenetre == ".!text" and ord(str(event.widget.get(1.0, END))[0]) == 10:
+            print(str(event.widget.get(1.0, END)))
+            event.widget.insert(END, "Zone de texte pour taper le message à encrypter ou pour afficher le résultat de décryption")
+        elif fenetre == ".!text2" and ord(str(event.widget.get(1.0, END))[0]) == 10:
+            event.widget.insert(END,"Zone de texte pour taper le message à décrypter ou pour afficher le résultat d'encryption")
+
+    event.widget.bind("<FocusOut>", test_text)
 
 
 #Initialisation de la fenêtre
