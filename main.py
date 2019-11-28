@@ -21,10 +21,14 @@ ROTOR1_BAS = ["+10", "+21", "+5", "-17", "+21", "-4", "+12", "+16", "+6", "-3", 
 
 ALPHABET =["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 
+def effacer(event):
+    event.widget.delete(1.0, END)
+
+
 #Initialisation de la fenêtre
 window = Tk()
 window.title("Enigma")
-window.geometry("900x600")
+window.geometry("900x650")
 
 #Espacement entre les rotors
 Label(window, text=" ", font=("Helvetica", 12)).grid(row=0)
@@ -34,22 +38,22 @@ Label(window, text=" ", font=("Helvetica", 12)).grid(row=8)
 Label(window, text=" ", font=("Helvetica", 12)).grid(row=11)
 
 #Création des grilles pour chaque rotor
-grid_reflecteur = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3).grid(row=1, column=i) for i, v in enumerate(REFLECTEUR)]
+grid_reflecteur = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=1, column=i) for i, v in enumerate(REFLECTEUR)]
 grid_reflecteur_text = Label(window, text="Réflecteur",font=("Helvetica", 12)).grid(row=1, column=29)
 
-grid_rotor3_haut = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3).grid(row=3, column=i) for i, v in enumerate(ROTOR3_HAUT)]
-grid_rotor3_bas = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3).grid(row=4, column=i) for i, v in enumerate(ROTOR3_BAS)]
+grid_rotor3_haut = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=3, column=i) for i, v in enumerate(ROTOR3_HAUT)]
+grid_rotor3_bas = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=4, column=i) for i, v in enumerate(ROTOR3_BAS)]
 grid_rotor3_text = Label(window, text="Rotor 3",font=("Helvetica", 12)).grid(row=3, column=29, rowspan=2)
 
-grid_rotor2_haut = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3).grid(row=6, column=i) for i, v in enumerate(ROTOR2_HAUT)]
-grid_rotor2_bas = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3).grid(row=7, column=i) for i, v in enumerate(ROTOR2_BAS)]
+grid_rotor2_haut = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=6, column=i) for i, v in enumerate(ROTOR2_HAUT)]
+grid_rotor2_bas = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=7, column=i) for i, v in enumerate(ROTOR2_BAS)]
 grid_rotor2_text = Label(window, text="Rotor 2",font=("Helvetica", 12)).grid(row=6, column=29, rowspan=2)
 
-grid_rotor1_haut = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3).grid(row=9, column=i) for i, v in enumerate(ROTOR1_HAUT)]
-grid_rotor1_bas = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3).grid(row=10, column=i) for i, v in enumerate(ROTOR1_BAS)]
+grid_rotor1_haut = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=9, column=i) for i, v in enumerate(ROTOR1_HAUT)]
+grid_rotor1_bas = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=10, column=i) for i, v in enumerate(ROTOR1_BAS)]
 grid_rotor1_text = Label(window, text="Rotor 1",font=("Helvetica", 12)).grid(row=9, column=29, rowspan=2)
 
-grid_alphabet = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3).grid(row=12, column=i) for i, v in enumerate(ALPHABET)]
+grid_alphabet = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=12, column=i) for i, v in enumerate(ALPHABET)]
 
 Label(window, text=" ", font=("Helvetica", 12)).grid(row=13)
 
@@ -67,6 +71,32 @@ Label(window, text=" ", font=("Helvetica", 12)).grid(row=19)
 
 Separator(window, orient=HORIZONTAL).grid(row=20, columnspan=34, sticky='ew')
 Separator(window, orient=HORIZONTAL).grid(row=21, columnspan=34, sticky='ew')
+
+text_source = Text(window, font=("Helvetica", 12), height=4)
+text_source.insert(END, "Zone de texte pour taper le message à encrypter ou pour afficher le résultat de décryption")
+text_source.bind("<FocusIn>", effacer)
+text_source.grid(row=22, rowspan=3, columnspan=26)
+
+Separator(window, orient=HORIZONTAL).grid(row=25, columnspan=34, sticky='ew')
+Separator(window, orient=HORIZONTAL).grid(row=26, columnspan=34, sticky='ew')
+
+Label(window, text=" ", font=("Helvetica", 3)).grid(row=27)
+
+Button(window, text="Configurer rotors").grid(row=28, column=1, columnspan=4)
+Button(window, text="Encrypter").grid(row=28, column=6, columnspan=4)
+Button(window, text="Étape suivante").grid(row=28, column=11, columnspan=4)
+Button(window, text="Décrypter").grid(row=28, column=16, columnspan=4)
+Button(window, text="Réinitialiser").grid(row=28, column=21, columnspan=4)
+
+Label(window, text=" ", font=("Helvetica", 3)).grid(row=29)
+
+Separator(window, orient=HORIZONTAL).grid(row=30, columnspan=34, sticky='ew')
+Separator(window, orient=HORIZONTAL).grid(row=31, columnspan=34, sticky='ew')
+
+text_cible = Text(window, font=("Helvetica", 12), height=4)
+text_cible.insert(END, "Zone de texte pour taper le message à décrypter ou pour afficher le résultat d'encryption")
+text_cible.bind("<FocusIn>", effacer)
+text_cible.grid(row=32, rowspan=3, columnspan=26)
 
 def droite():
     for x in tabdelabs:
