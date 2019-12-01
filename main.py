@@ -142,7 +142,7 @@ class Enigma:
         self.encrypt.grid(row=28, column=6, columnspan=4)
         self.next_step = Button(window, text="Étape suivante", state=DISABLED)
         self.next_step.grid(row=28, column=11, columnspan=4)
-        self.decrypt = Button(window, text="Décrypter ↑↑", state=DISABLED)
+        self.decrypt = Button(window, text="Décrypter ↑↑", command=self.dechiffrer, state=DISABLED)
         self.decrypt.grid(row=28, column=16, columnspan=4)
         self.reset = Button(window, text="Réinitialiser")
         self.reset.grid(row=28, column=21, columnspan=4)
@@ -251,6 +251,7 @@ class Enigma:
 
         self.config.config(state=DISABLED)
         self.encrypt.config(state=ACTIVE)
+        self.decrypt.config(state=ACTIVE)
 
     def chiffrer(self):
         self.text_source.config(state=DISABLED)
@@ -267,33 +268,75 @@ class Enigma:
         etape_1 = int(self.grid_rotor1_bas[coord_origin].cget("text"))
         self.grid_rotor1_bas[coord_origin].config(background="Red")
 
-        etape_2 = (etape_1 + int(self.grid_rotor2_bas[etape_1].cget("text"))) % 26
-        self.grid_rotor2_bas[etape_1].config(background="Red")
+        etape_2 = (coord_origin + etape_1) % 26
+        self.grid_rotor2_bas[etape_2].config(background="Red")
 
-        etape_3 = (etape_2 + int(self.grid_rotor3_bas[etape_2].cget("text"))) % 26
-        self.grid_rotor3_bas[etape_2].config(background="Red")
+        etape_3 = (etape_2 + int(self.grid_rotor2_bas[etape_2].cget("text"))) % 26
+        self.grid_rotor3_bas[etape_3].config(background="Red")
 
-        etape_4 = (etape_3 + int(self.grid_reflecteur[etape_3].cget("text"))) % 26
-        self.grid_reflecteur[etape_3].config(background="Red")
+        etape_4 = (etape_3 + int(self.grid_rotor3_bas[etape_3].cget("text"))) % 26
+        self.grid_reflecteur[etape_4].config(background="Red")
 
-        etape_5 = (etape_4 + int(self.grid_rotor3_haut[etape_4].cget("text"))) % 26
-        self.grid_rotor3_haut[etape_4].config(background="Blue")
+        etape_5 = (etape_4 + int(self.grid_reflecteur[etape_4].cget("text"))) % 26
+        self.grid_rotor3_haut[etape_5].config(background="Blue")
 
-        etape_6 = (etape_5 + int(self.grid_rotor2_haut[etape_5].cget("text"))) % 26
-        self.grid_rotor2_haut[etape_5].config(background="Blue")
+        etape_6 = (etape_5 + int(self.grid_rotor3_haut[etape_5].cget("text"))) % 26
+        self.grid_rotor2_haut[etape_6].config(background="Blue")
 
-        etape_7 = (etape_6 + int(self.grid_rotor1_haut[etape_6].cget("text"))) % 26
-        self.grid_rotor1_haut[etape_6].config(background="Blue")
+        etape_7 = (etape_6 + int(self.grid_rotor2_haut[etape_6].cget("text"))) % 26
+        self.grid_rotor1_haut[etape_7].config(background="Blue")
 
-        coord_final = chr(etape_7 + 65)
-        self.grid_alphabet[etape_7].config(background="Blue")
+        coord_final = (etape_7 + int(self.grid_rotor1_haut[etape_7].cget("text"))) % 26
 
-        self.text_cible.insert(END, coord_final)
+        self.grid_alphabet[coord_final].config(background="Blue")
+        lettre_final = chr(coord_final + 65)
+
+        self.text_cible.insert(END, lettre_final)
 
         self.text_cible.config(state=DISABLED)
 
 
+    def dechiffrer(self):
+        self.text_cible.config(state=DISABLED)
+        self.text_source.delete(1.0, END)
+        self.text_source.config(state=NORMAL)
 
+        self.text_a_chiffer = self.text_cible.get(1.0, END).split()
+        lettre = self.text_a_chiffer.pop(0).upper()
+
+        coord_origin = ord(lettre) - 65
+
+        self.grid_alphabet[coord_origin].config(background="Blue")
+
+        etape_1 = int(self.grid_rotor1_bas[coord_origin].cget("text"))
+        self.grid_rotor1_bas[coord_origin].config(background="Blue")
+
+        etape_2 = (coord_origin + etape_1) % 26
+        self.grid_rotor2_bas[etape_2].config(background="Blue")
+
+        etape_3 = (etape_2 + int(self.grid_rotor2_bas[etape_2].cget("text"))) % 26
+        self.grid_rotor3_bas[etape_3].config(background="Blue")
+
+        etape_4 = (etape_3 + int(self.grid_rotor3_bas[etape_3].cget("text"))) % 26
+        self.grid_reflecteur[etape_4].config(background="Blue")
+
+        etape_5 = (etape_4 + int(self.grid_reflecteur[etape_4].cget("text"))) % 26
+        self.grid_rotor3_haut[etape_5].config(background="Red")
+
+        etape_6 = (etape_5 + int(self.grid_rotor3_haut[etape_5].cget("text"))) % 26
+        self.grid_rotor2_haut[etape_6].config(background="Red")
+
+        etape_7 = (etape_6 + int(self.grid_rotor2_haut[etape_6].cget("text"))) % 26
+        self.grid_rotor1_haut[etape_7].config(background="Red")
+
+        coord_final = (etape_7 + int(self.grid_rotor1_haut[etape_7].cget("text"))) % 26
+
+        self.grid_alphabet[coord_final].config(background="Red")
+        lettre_final = chr(coord_final + 65)
+
+        self.text_source.insert(END, lettre_final)
+
+        self.text_source.config(state=DISABLED)
 
 
 
