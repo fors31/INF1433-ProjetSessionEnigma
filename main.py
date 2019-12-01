@@ -36,6 +36,8 @@ class Enigma:
         window.title("Enigma")
         window.geometry("900x650")
 
+        self.grid_rows = [1, 3, 4, 6, 7, 9, 10, 12]
+
         self.premier_rotor = ""
         self.premier_direction = ""
         self.premier_deplacement = 0
@@ -48,6 +50,10 @@ class Enigma:
         self.troisieme_direction = ""
         self.troisieme_deplacement = 0
 
+        self.ordre = []
+
+        self.counter = 26
+
         # Espacement entre les rotors
         Label(window, text=" ", font=("Helvetica", 12)).grid(row=0)
         Label(window, text=" ", font=("Helvetica", 12)).grid(row=2)
@@ -56,38 +62,48 @@ class Enigma:
         Label(window, text=" ", font=("Helvetica", 12)).grid(row=11)
 
         # Création des grilles pour chaque rotor
-        self.grid_reflecteur = [
-            Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=1, column=i)
-            for i, v in enumerate(REFLECTEUR)]
+
+        #Réflecteur
+        self.grid_reflecteur = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                                for v in REFLECTEUR]
         self.grid_reflecteur_text = Label(window, text="Réflecteur", font=("Helvetica", 12)).grid(row=1, column=29)
 
-        self.grid_rotor3_haut = [
-            Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=3, column=i)
-            for i, v in enumerate(ROTOR3_HAUT)]
-        self.grid_rotor3_bas = [
-            Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=4, column=i)
-            for i, v in enumerate(ROTOR3_BAS)]
+        #Rotor 3
+        self.grid_rotor3_haut = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                                for v in ROTOR3_HAUT]
+        self.grid_rotor3_bas = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                                for v in ROTOR3_BAS]
         self.grid_rotor3_text = Label(window, text="Rotor 3", font=("Helvetica", 12)).grid(row=3, column=29, rowspan=2)
 
-        self.grid_rotor2_haut = [
-            Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=6, column=i)
-            for i, v in enumerate(ROTOR2_HAUT)]
-        self.grid_rotor2_bas = [
-            Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=7, column=i)
-            for i, v in enumerate(ROTOR2_BAS)]
+        #Rotor 2
+        self.grid_rotor2_haut = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                                for v in ROTOR2_HAUT]
+        self.grid_rotor2_bas = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                                for v in ROTOR2_BAS]
         self.grid_rotor2_text = Label(window, text="Rotor 2", font=("Helvetica", 12)).grid(row=6, column=29, rowspan=2)
 
-        self.grid_rotor1_haut = [
-            Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=9, column=i)
-            for i, v in enumerate(ROTOR1_HAUT)]
-        self.grid_rotor1_bas = [
-            Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=10, column=i)
-            for i, v in enumerate(ROTOR1_BAS)]
+        #Rotor 1
+        self.grid_rotor1_haut = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                                for v in ROTOR1_HAUT]
+        self.grid_rotor1_bas = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                                for v in ROTOR1_BAS]
         self.grid_rotor1_text = Label(window, text="Rotor 1", font=("Helvetica", 12)).grid(row=9, column=29, rowspan=2)
 
-        self.grid_alphabet = [
-            Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER).grid(row=12, column=i)
-            for i, v in enumerate(ALPHABET)]
+        #Alphabet
+        self.grid_alphabet = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                              for v in ALPHABET]
+
+        self.tab_rotors = [self.grid_reflecteur, self.grid_rotor3_haut, self.grid_rotor3_bas, self.grid_rotor2_haut,
+                           self.grid_rotor2_bas, self.grid_rotor1_haut, self.grid_rotor1_bas, self.grid_alphabet]
+
+        self.R3 = (self.grid_rotor3_haut, self.grid_rotor3_bas)
+        self.R2 = (self.grid_rotor2_haut, self.grid_rotor2_bas)
+        self.R1 = (self.grid_rotor1_haut, self.grid_rotor1_bas)
+
+        for x in self.tab_rotors:
+            rangee = self.grid_rows.pop(0)
+            for i, k in enumerate(x):
+                k.grid(row=rangee, column=i)
 
         Label(window, text=" ", font=("Helvetica", 12)).grid(row=13)
 
@@ -136,17 +152,20 @@ class Enigma:
         self.text_cible.bind("<FocusIn>", self.effacer)
         self.text_cible.grid(row=32, rowspan=3, columnspan=26)
 
+
     def effacer(self, event):
         fenetre = str(event.widget)
         if str(event.widget.get(1.0, END)) == "Zone de texte pour taper le message à encrypter ou pour afficher le résultat de décryption\n" \
             or str(event.widget.get(1.0, END)) == "Zone de texte pour taper le message à décrypter ou pour afficher le résultat d'encryption\n":
             event.widget.delete(1.0, END)
+
         def test_text(event):
             if fenetre == ".!text" and ord(str(event.widget.get(1.0, END))[0]) == 10:
                 print(str(event.widget.get(1.0, END)))
                 event.widget.insert(END, "Zone de texte pour taper le message à encrypter ou pour afficher le résultat de décryption")
             elif fenetre == ".!text2" and ord(str(event.widget.get(1.0, END))[0]) == 10:
                 event.widget.insert(END,"Zone de texte pour taper le message à décrypter ou pour afficher le résultat d'encryption")
+
         event.widget.bind("<FocusOut>", test_text)
 
     def configurer(self):
@@ -154,8 +173,8 @@ class Enigma:
         text_re = re.findall("\([^)]*\)", text)
         try:
             premier = text_re[0].replace("(", "").replace(")", "").replace(" ", "").split(",")
-            deuxieme = text_re[0].replace("(", "").replace(")", "").replace(" ", "").split(",")
-            troisieme = text_re[0].replace("(", "").replace(")", "").replace(" ", "").split(",")
+            deuxieme = text_re[1].replace("(", "").replace(")", "").replace(" ", "").split(",")
+            troisieme = text_re[2].replace("(", "").replace(")", "").replace(" ", "").split(",")
 
             complet = [premier, deuxieme, troisieme]
 
@@ -179,23 +198,53 @@ class Enigma:
             self.troisieme_direction = troisieme[1]
             self.troisieme_deplacement = int(troisieme[2])
 
+            self.ordre = [[self.premier_rotor, self.premier_direction, self.premier_deplacement],
+                          [self.deuxieme_rotor, self.deuxieme_direction, self.deuxieme_deplacement],
+                          [self.troisieme_rotor, self.troisieme_direction, self.troisieme_deplacement]]
+
             messagebox.showinfo("Configuration", "Configuration enregistrée!")
+
+            self.init_rotors()
 
         except ErreurConfiguration as e:
             messagebox.showwarning("Erreur", "Configuration erronnée!\n" + e.erreur)
 
         except:
-            messagebox.showwarning("Erreur", "Configuration erronnée!")
+            messagebox.showwarning("Erreur", "Configuration erronnée!\nVeuillez respecter le format de configuration.")
+
+    def decalage_droit(self, rotor):
+        for x in rotor:
+            new_col = (x.grid_info()["column"] + 1) % 26
+            x.grid(column=new_col)
+
+        end = rotor.pop()
+        rotor.insert(0, end)
+
+    def decalage_gauche(self, rotor):
+        for x in rotor:
+            new_col = (x.grid_info()["column"] - 1) % 26
+            x.grid(column=new_col)
+
+        end = rotor.pop(0)
+        rotor.append(end)
+
+    def init_rotors(self):
+        switch_rotor = {
+            "R1": self.R1,
+            "R2": self.R2,
+            "R3": self.R3
+        }
+        for x in self.ordre:
+            for i in range(abs(x[2])):
+                if x[2] > 0:
+                    for k in switch_rotor[x[0]]:
+                        self.decalage_droit(k)
+                else:
+                    for k in switch_rotor[x[0]]:
+                        self.decalage_gauche(k)
 
 
 
-def droite():
-    for x in tabdelabs:
-        new_col = (x.grid_info()["column"] + 1) % 3
-        x.grid(column = new_col)
-
-    end = tabdelabs.pop()
-    tabdelabs.insert(0, end)
 
 root = Tk()
 start = Enigma(root)
