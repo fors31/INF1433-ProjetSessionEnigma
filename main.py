@@ -37,6 +37,7 @@ class Enigma:
         window.geometry("900x650")
 
         self.grid_rows = [1, 3, 4, 6, 7, 9, 10, 12]
+        self.text_a_chiffer = []
 
         self.premier_rotor = ""
         self.premier_direction = ""
@@ -124,22 +125,27 @@ class Enigma:
         Separator(window, orient=HORIZONTAL).grid(row=20, columnspan=34, sticky='ew')
         Separator(window, orient=HORIZONTAL).grid(row=21, columnspan=34, sticky='ew')
 
-        text_source = Text(window, font=("Helvetica", 12), height=4)
-        text_source.insert(END,
+        self.text_source = Text(window, font=("Helvetica", 12), height=4)
+        self.text_source.insert(END,
                            "Zone de texte pour taper le message à encrypter ou pour afficher le résultat de décryption")
-        text_source.bind("<FocusIn>", self.effacer)
-        text_source.grid(row=22, rowspan=3, columnspan=26)
+        self.text_source.bind("<FocusIn>", self.effacer)
+        self.text_source.grid(row=22, rowspan=3, columnspan=26)
 
         Separator(window, orient=HORIZONTAL).grid(row=25, columnspan=34, sticky='ew')
         Separator(window, orient=HORIZONTAL).grid(row=26, columnspan=34, sticky='ew')
 
         Label(window, text=" ", font=("Helvetica", 3)).grid(row=27)
 
-        self.config = Button(window, text="Configurer rotors", command=self.configurer).grid(row=28, column=1, columnspan=4)
-        self.encrypt = Button(window, text="Encrypter ↓↓", state=DISABLED).grid(row=28, column=6, columnspan=4)
-        self.next_step = Button(window, text="Étape suivante", state=DISABLED).grid(row=28, column=11, columnspan=4)
-        self.decrypt = Button(window, text="Décrypter ↑↑", state=DISABLED).grid(row=28, column=16, columnspan=4)
-        self.reset = Button(window, text="Réinitialiser").grid(row=28, column=21, columnspan=4)
+        self.config = Button(window, text="Configurer rotors", command=self.configurer)
+        self.config.grid(row=28, column=1, columnspan=4)
+        self.encrypt = Button(window, text="Encrypter ↓↓", command=self.chiffrer, state=DISABLED)
+        self.encrypt.grid(row=28, column=6, columnspan=4)
+        self.next_step = Button(window, text="Étape suivante", state=DISABLED)
+        self.next_step.grid(row=28, column=11, columnspan=4)
+        self.decrypt = Button(window, text="Décrypter ↑↑", state=DISABLED)
+        self.decrypt.grid(row=28, column=16, columnspan=4)
+        self.reset = Button(window, text="Réinitialiser")
+        self.reset.grid(row=28, column=21, columnspan=4)
 
         Label(window, text=" ", font=("Helvetica", 3)).grid(row=29)
 
@@ -209,7 +215,7 @@ class Enigma:
         except ErreurConfiguration as e:
             messagebox.showwarning("Erreur", "Configuration erronnée!\n" + e.erreur)
 
-        except:
+        #except:
             messagebox.showwarning("Erreur", "Configuration erronnée!\nVeuillez respecter le format de configuration.")
 
     def decalage_droit(self, rotor):
@@ -242,6 +248,52 @@ class Enigma:
                 else:
                     for k in switch_rotor[x[0]]:
                         self.decalage_gauche(k)
+
+        self.config.config(state=DISABLED)
+        self.encrypt.config(state=ACTIVE)
+
+    def chiffrer(self):
+        self.text_source.config(state=DISABLED)
+        self.text_cible.delete(1.0, END)
+        self.text_cible.config(state=NORMAL)
+
+        self.text_a_chiffer = self.text_source.get(1.0, END).split()
+        lettre = self.text_a_chiffer.pop(0).upper()
+
+        coord_origin = ord(lettre) - 65
+
+        self.grid_alphabet[coord_origin].config(background="Red")
+
+        etape_1 = int(self.grid_rotor1_bas[coord_origin].cget("text"))
+        self.grid_rotor1_bas[coord_origin].config(background="Red")
+
+        etape_2 = (etape_1 + int(self.grid_rotor2_bas[etape_1].cget("text"))) % 26
+        self.grid_rotor2_bas[etape_1].config(background="Red")
+
+        etape_3 = (etape_2 + int(self.grid_rotor3_bas[etape_2].cget("text"))) % 26
+        self.grid_rotor3_bas[etape_2].config(background="Red")
+
+        etape_4 = (etape_3 + int(self.grid_reflecteur[etape_3].cget("text"))) % 26
+        self.grid_reflecteur[etape_3].config(background="Red")
+
+        etape_5 = (etape_4 + int(self.grid_rotor3_haut[etape_4].cget("text"))) % 26
+        self.grid_rotor3_haut[etape_4].config(background="Blue")
+
+        etape_6 = (etape_5 + int(self.grid_rotor2_haut[etape_5].cget("text"))) % 26
+        self.grid_rotor2_haut[etape_5].config(background="Blue")
+
+        etape_7 = (etape_6 + int(self.grid_rotor1_haut[etape_6].cget("text"))) % 26
+        self.grid_rotor1_haut[etape_6].config(background="Blue")
+
+        coord_final = chr(etape_7 + 65)
+        self.grid_alphabet[etape_7].config(background="Blue")
+
+        self.text_cible.insert(END, coord_final)
+
+        self.text_cible.config(state=DISABLED)
+
+
+
 
 
 
