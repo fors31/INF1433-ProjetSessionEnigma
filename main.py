@@ -214,6 +214,9 @@ class Enigma:
                 if int(x[2]) < -26 or int(x[2]) > 26:
                     raise ErreurConfiguration("Le chiffre doit se trouver entre -26 et 26!")
 
+            if len(set([complet[0][0], complet[1][0], complet[2][0]])) != 3:
+                raise ErreurConfiguration("Répétition de rotor!")
+
             self.premier_rotor = premier[0]
             self.premier_direction = premier[1]
             self.premier_deplacement = int(premier[2])
@@ -237,7 +240,7 @@ class Enigma:
         except ErreurConfiguration as e:
             messagebox.showwarning("Erreur", "Configuration erronnée!\n" + e.erreur)
 
-        #except:
+        except:
             messagebox.showwarning("Erreur", "Configuration erronnée!\nVeuillez respecter le format de configuration.")
 
     def decalage_droit(self, rotor):
