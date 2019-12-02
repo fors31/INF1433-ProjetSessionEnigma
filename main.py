@@ -393,10 +393,11 @@ class Enigma:
             self.encrypt.config(state=ACTIVE)
         else:
             self.decrypt.config(state=ACTIVE)
+        color = self.window.cget("bg")
 
         for i in self.tab_rotors:
             for k in i:
-                k.config(background="SystemButtonFace")
+                k.config(background=color)
 
         switch_rotor = {
             "R1": self.R1,
