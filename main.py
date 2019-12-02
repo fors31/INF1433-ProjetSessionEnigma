@@ -23,6 +23,8 @@ ROTOR1_BAS = ["+10", "+21", "+5", "-17", "+21", "-4", "+12", "+16", "+6", "-3", 
 
 ALPHABET =["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 
+TAB_COMPLET = [REFLECTEUR, ROTOR3_HAUT, ROTOR3_BAS, ROTOR2_HAUT, ROTOR2_BAS, ROTOR1_HAUT, ROTOR1_BAS, ALPHABET]
+
 class ErreurConfiguration(Exception):
 
     def __init__(self, erreur):
@@ -40,6 +42,19 @@ class Enigma:
         self.grid_rows = [1, 3, 4, 6, 7, 9, 10, 12]
         self.text_a_chiffer = None
 
+        self.grid_reflecteur = []
+
+        self.grid_rotor3_haut = []
+        self.grid_rotor3_bas = []
+
+        self.grid_rotor2_haut = []
+        self.grid_rotor2_bas = []
+
+        self.grid_rotor1_haut = []
+        self.grid_rotor1_bas = []
+
+        self.grid_alphabet = []
+
         self.premier_rotor = ""
         self.premier_direction = ""
         self.premier_deplacement = 0
@@ -53,6 +68,7 @@ class Enigma:
         self.troisieme_deplacement = 0
 
         self.ordre = []
+        self.tab_rotors = []
 
         self.count = 26
         self.num_config = 0
@@ -66,47 +82,15 @@ class Enigma:
 
         # Création des grilles pour chaque rotor
 
-        #Réflecteur
-        self.grid_reflecteur = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
-                                for v in REFLECTEUR]
+        self.tabulation_rotors()
         self.grid_reflecteur_text = Label(window, text="Réflecteur", font=("Helvetica", 12)).grid(row=1, column=29)
-
-        #Rotor 3
-        self.grid_rotor3_haut = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
-                                for v in ROTOR3_HAUT]
-        self.grid_rotor3_bas = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
-                                for v in ROTOR3_BAS]
         self.grid_rotor3_text = Label(window, text="Rotor 3", font=("Helvetica", 12)).grid(row=3, column=29, rowspan=2)
-
-        #Rotor 2
-        self.grid_rotor2_haut = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
-                                for v in ROTOR2_HAUT]
-        self.grid_rotor2_bas = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
-                                for v in ROTOR2_BAS]
         self.grid_rotor2_text = Label(window, text="Rotor 2", font=("Helvetica", 12)).grid(row=6, column=29, rowspan=2)
-
-        #Rotor 1
-        self.grid_rotor1_haut = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
-                                for v in ROTOR1_HAUT]
-        self.grid_rotor1_bas = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
-                                for v in ROTOR1_BAS]
         self.grid_rotor1_text = Label(window, text="Rotor 1", font=("Helvetica", 12)).grid(row=9, column=29, rowspan=2)
-
-        #Alphabet
-        self.grid_alphabet = [Label(window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
-                              for v in ALPHABET]
-
-        self.tab_rotors = [self.grid_reflecteur, self.grid_rotor3_haut, self.grid_rotor3_bas, self.grid_rotor2_haut,
-                           self.grid_rotor2_bas, self.grid_rotor1_haut, self.grid_rotor1_bas, self.grid_alphabet]
 
         self.R3 = (self.grid_rotor3_haut, self.grid_rotor3_bas)
         self.R2 = (self.grid_rotor2_haut, self.grid_rotor2_bas)
         self.R1 = (self.grid_rotor1_haut, self.grid_rotor1_bas)
-
-        for x in self.tab_rotors:
-            rangee = self.grid_rows.pop(0)
-            for i, k in enumerate(x):
-                k.grid(row=rangee, column=i)
 
         Label(window, text=" ", font=("Helvetica", 12)).grid(row=13)
 
@@ -146,7 +130,7 @@ class Enigma:
         self.next_step.grid(row=28, column=11, columnspan=4)
         self.decrypt = Button(window, text="Décrypter ↑↑", command=self.dechiffrer, state=DISABLED)
         self.decrypt.grid(row=28, column=16, columnspan=4)
-        self.reset = Button(window, text="Réinitialiser")
+        self.reset = Button(window, text="Réinitialiser", command=self.reinitialiser)
         self.reset.grid(row=28, column=21, columnspan=4)
 
         Label(window, text=" ", font=("Helvetica", 3)).grid(row=29)
@@ -160,6 +144,43 @@ class Enigma:
         self.text_cible.bind("<FocusIn>", self.effacer)
         self.text_cible.grid(row=32, rowspan=3, columnspan=26)
 
+    def tabulation_rotors(self):
+
+        #Réflecteur
+        self.grid_reflecteur = [Label(self.window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                                for v in REFLECTEUR]
+
+        #Rotor 3
+        self.grid_rotor3_haut = [Label(self.window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                                for v in ROTOR3_HAUT]
+        self.grid_rotor3_bas = [Label(self.window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                                for v in ROTOR3_BAS]
+
+        #Rotor 2
+        self.grid_rotor2_haut = [Label(self.window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                                for v in ROTOR2_HAUT]
+        self.grid_rotor2_bas = [Label(self.window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                                for v in ROTOR2_BAS]
+
+        #Rotor 1
+        self.grid_rotor1_haut = [Label(self.window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                                for v in ROTOR1_HAUT]
+        self.grid_rotor1_bas = [Label(self.window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                                for v in ROTOR1_BAS]
+
+        #Alphabet
+        self.grid_alphabet = [Label(self.window, text=v, font=("Helvetica", 12), relief=SUNKEN, width=3, anchor=CENTER)
+                              for v in ALPHABET]
+
+        self.tab_rotors = [self.grid_reflecteur, self.grid_rotor3_haut, self.grid_rotor3_bas, self.grid_rotor2_haut,
+                           self.grid_rotor2_bas, self.grid_rotor1_haut, self.grid_rotor1_bas, self.grid_alphabet]
+
+        for x in self.tab_rotors:
+            rangee = self.grid_rows.pop(0)
+            for i, k in enumerate(x):
+                k.grid(row=rangee, column=i)
+
+        self.grid_rows = [1, 3, 4, 6, 7, 9, 10, 12]
 
     def effacer(self, event):
         fenetre = str(event.widget)
@@ -169,7 +190,6 @@ class Enigma:
 
         def test_text(event):
             if fenetre == ".!text" and ord(str(event.widget.get(1.0, END))[0]) == 10:
-                print(str(event.widget.get(1.0, END)))
                 event.widget.insert(END, "Zone de texte pour taper le message à encrypter ou pour afficher le résultat de décryption")
             elif fenetre == ".!text2" and ord(str(event.widget.get(1.0, END))[0]) == 10:
                 event.widget.insert(END,"Zone de texte pour taper le message à décrypter ou pour afficher le résultat d'encryption")
@@ -217,7 +237,7 @@ class Enigma:
         except ErreurConfiguration as e:
             messagebox.showwarning("Erreur", "Configuration erronnée!\n" + e.erreur)
 
-        except:
+        #except:
             messagebox.showwarning("Erreur", "Configuration erronnée!\nVeuillez respecter le format de configuration.")
 
     def decalage_droit(self, rotor):
@@ -305,7 +325,6 @@ class Enigma:
         self.encrypt.config(state=DISABLED)
         self.decrypt.config(state=DISABLED)
 
-        print(len(self.text_a_chiffer))
         if len(self.text_a_chiffer) == 1:
             messagebox.showinfo("Fin", "Processus terminé!")
             self.next_step.config(state=DISABLED)
@@ -408,7 +427,32 @@ class Enigma:
 
         self.count -= 1
 
+    def reinitialiser(self):
 
+        self.text_source.config(state=NORMAL)
+        self.text_source.delete(1.0, END)
+        self.text_source.insert(END, "Zone de texte pour taper le message à encrypter ou pour afficher le résultat de décryption")
+
+        self.text_cible.config(state=NORMAL)
+        self.text_cible.delete(1.0, END)
+        self.text_cible.insert(END, "Zone de texte pour taper le message à décrypter ou pour afficher le résultat d'encryption")
+
+        self.entree_clef.delete(0, END)
+
+        self.text_a_chiffer = None
+        self.encrypt_state = True
+
+        for x, y in zip(self.tab_rotors, TAB_COMPLET):
+            for i in range(26):
+                x[i].config(text=y[i])
+
+        for i in self.tab_rotors:
+            for k in i:
+                k.config(background="SystemButtonFace")
+
+        self.encrypt.config(state=DISABLED)
+        self.decrypt.config(state=DISABLED)
+        self.config.config(state=ACTIVE)
 
 root = Tk()
 start = Enigma(root)
