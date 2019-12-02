@@ -451,9 +451,11 @@ class Enigma:
             for i in range(26):
                 x[i].config(text=y[i])
 
+        color = self.window.cget("bg")
+
         for i in self.tab_rotors:
             for k in i:
-                k.config(background="SystemButtonFace")
+                k.config(background=color)
 
         self.encrypt.config(state=DISABLED)
         self.decrypt.config(state=DISABLED)
