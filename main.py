@@ -417,15 +417,16 @@ class Enigma:
 
         elif self.num_config == 2 and self.count == 0:
             self.num_config = 0
-            self.count = 26
+            self.count = 27
             self.etape_suivate()
 
         elif self.num_config != 2 and self.count == 0:
-            self.count = 26
+            self.count = 27
             self.num_config += 1
             self.etape_suivate()
 
         self.count -= 1
+        self.next_step.config(state=DISABLED)
 
     def reinitialiser(self):
 
