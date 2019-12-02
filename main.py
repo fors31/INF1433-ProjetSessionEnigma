@@ -32,12 +32,13 @@ class Enigma:
 
     def __init__(self, window):
         # Initialisation de la fenêtre
+        self.encrypt_state = True
         self.window = window
         window.title("Enigma")
         window.geometry("900x650")
 
         self.grid_rows = [1, 3, 4, 6, 7, 9, 10, 12]
-        self.text_a_chiffer = []
+        self.text_a_chiffer = None
 
         self.premier_rotor = ""
         self.premier_direction = ""
@@ -53,7 +54,8 @@ class Enigma:
 
         self.ordre = []
 
-        self.counter = 26
+        self.count = 26
+        self.num_config = 0
 
         # Espacement entre les rotors
         Label(window, text=" ", font=("Helvetica", 12)).grid(row=0)
@@ -140,7 +142,7 @@ class Enigma:
         self.config.grid(row=28, column=1, columnspan=4)
         self.encrypt = Button(window, text="Encrypter ↓↓", command=self.chiffrer, state=DISABLED)
         self.encrypt.grid(row=28, column=6, columnspan=4)
-        self.next_step = Button(window, text="Étape suivante", state=DISABLED)
+        self.next_step = Button(window, text="Étape suivante", command=self.etape_suivate, state=DISABLED)
         self.next_step.grid(row=28, column=11, columnspan=4)
         self.decrypt = Button(window, text="Décrypter ↑↑", command=self.dechiffrer, state=DISABLED)
         self.decrypt.grid(row=28, column=16, columnspan=4)
@@ -215,7 +217,7 @@ class Enigma:
         except ErreurConfiguration as e:
             messagebox.showwarning("Erreur", "Configuration erronnée!\n" + e.erreur)
 
-        #except:
+        except:
             messagebox.showwarning("Erreur", "Configuration erronnée!\nVeuillez respecter le format de configuration.")
 
     def decalage_droit(self, rotor):
@@ -258,8 +260,13 @@ class Enigma:
         self.text_cible.delete(1.0, END)
         self.text_cible.config(state=NORMAL)
 
-        self.text_a_chiffer = self.text_source.get(1.0, END).split()
+        if self.text_a_chiffer == None:
+            self.text_a_chiffer = list(self.text_source.get(1.0, END))
+
         lettre = self.text_a_chiffer.pop(0).upper()
+
+        while not lettre.isalpha():
+            lettre = self.text_a_chiffer.pop(0).upper()
 
         coord_origin = ord(lettre) - 65
 
@@ -294,15 +301,30 @@ class Enigma:
         self.text_cible.insert(END, lettre_final)
 
         self.text_cible.config(state=DISABLED)
+        self.next_step.config(state=ACTIVE)
+        self.encrypt.config(state=DISABLED)
+        self.decrypt.config(state=DISABLED)
+
+        print(len(self.text_a_chiffer))
+        if len(self.text_a_chiffer) == 1:
+            messagebox.showinfo("Fin", "Processus terminé!")
+            self.next_step.config(state=DISABLED)
 
 
     def dechiffrer(self):
+        self.encrypt_state = False
+
         self.text_cible.config(state=DISABLED)
         self.text_source.delete(1.0, END)
         self.text_source.config(state=NORMAL)
 
-        self.text_a_chiffer = self.text_cible.get(1.0, END).split()
+        if self.text_a_chiffer == None:
+            self.text_a_chiffer = list(self.text_cible.get(1.0, END))
+
         lettre = self.text_a_chiffer.pop(0).upper()
+
+        while not lettre.isalpha():
+            lettre = self.text_a_chiffer.pop(0).upper()
 
         coord_origin = ord(lettre) - 65
 
@@ -337,7 +359,54 @@ class Enigma:
         self.text_source.insert(END, lettre_final)
 
         self.text_source.config(state=DISABLED)
+        self.next_step.config(state=ACTIVE)
+        self.encrypt.config(state=DISABLED)
+        self.decrypt.config(state=DISABLED)
 
+        if len(self.text_a_chiffer) == 1:
+            messagebox.showinfo("Fin", "Processus terminé!")
+            self.next_step.config(state=DISABLED)
+
+
+    def etape_suivate(self):
+
+        if self.encrypt_state:
+            self.encrypt.config(state=ACTIVE)
+        else:
+            self.decrypt.config(state=ACTIVE)
+
+        for i in self.tab_rotors:
+            for k in i:
+                k.config(background="SystemButtonFace")
+
+        switch_rotor = {
+            "R1": self.R1,
+            "R2": self.R2,
+            "R3": self.R3
+        }
+
+        direction = self.ordre[self.num_config][1]
+        rotor_action = switch_rotor[self.ordre[self.num_config][0]]
+
+        if self.count > 0:
+            if direction == "G":
+                for k in rotor_action:
+                    self.decalage_gauche(k)
+            else:
+                for k in rotor_action:
+                    self.decalage_droit(k)
+
+        elif self.num_config == 2 and self.count == 0:
+            self.num_config = 0
+            self.count = 26
+            self.etape_suivate()
+
+        elif self.num_config != 2 and self.count == 0:
+            self.count = 26
+            self.num_config += 1
+            self.etape_suivate()
+
+        self.count -= 1
 
 
 
